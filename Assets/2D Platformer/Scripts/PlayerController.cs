@@ -27,7 +27,7 @@ namespace Platformer
 
 
         private Rigidbody2D rigidbody;
-        private Animator animator;
+        public Animator animator;
         private GameManager gameManager;
         private State state;
 
@@ -48,19 +48,33 @@ namespace Platformer
 
         void Update()
         {
+            if (deathState)
+            {
+                // Print the current animator state
+                Debug.Log("Animator State: " + animator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+            }
             switch (state)
             {
                 case State.Moving:
-                    if (Input.GetButton("Horizontal"))
+
+                    if (Input.GetButton("Horizontal") && !deathState && !isFrozen)
                     {
                         moveInput = Input.GetAxis("Horizontal");
                         Vector3 direction = transform.right * moveInput;
                         transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, movingSpeed * Time.deltaTime);
-                        animator.SetInteger("playerState", 1); // Turn on run animation
+                        Debug.Log("Moving");
+                        // Only change animation if jump was at least 1 sec ago
+                        if (Time.time - coyoteTimeCounter > 1 && isGrounded)
+                        {
+                            animator.SetInteger("playerState", 1);
+                        }// Turn on run animation
                     }
                     else
                     {
-                        if (isGrounded) animator.SetInteger("playerState", 0); // Turn on idle animation
+                        if (isGrounded && !deathState && !isFrozen)
+                        {
+                            animator.SetInteger("playerState", 0); // Turn off run animation
+                        }
                     }
                     if (isGrounded)
                     {
@@ -74,6 +88,7 @@ namespace Platformer
                     {
 
                         rigidbody.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+                        Debug.Log("Jump");
                         animator.SetInteger("playerState", 2); // Turn on jump animation
                         // coyoteTimeCounter = 0;
                     }
@@ -86,9 +101,16 @@ namespace Platformer
                     {
                         Flip();
                     }
+                    if (deathState)
+                    {
+                        Debug.Log("Death");
+                        animator.SetInteger("playerState", 3); // Turn on death animation
+                    }
                     break;
                 case State.Clock:
                     freezePlayer();
+                    // Set Sprite to Meow-Knight_jump_4
+                    animator.SetInteger("playerState", 4);
                     // rigidbody.gravityScale = 0;
                     // Move it to the center of the clock
                     transform.position = Vector3.MoveTowards(transform.position, lastCollidedClock.transform.position, movingSpeed * Time.deltaTime);
@@ -155,6 +177,7 @@ namespace Platformer
             if (other.gameObject.tag == "Enemy")
             {
                 deathState = true; // Say to GameManager that player is dead
+                animator.SetInteger("playerState", 3); // Turn on death animation
             }
             else
             {

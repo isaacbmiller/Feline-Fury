@@ -30,12 +30,16 @@ namespace Platformer
         {
             if (player.deathState == true)
             {
-                playerGameObject.SetActive(false);
-                deathPlayer = (GameObject)Instantiate(deathPlayerPrefab, playerGameObject.transform.position, playerGameObject.transform.rotation);
-                deathPlayer.transform.localScale = new Vector3(playerGameObject.transform.localScale.x, playerGameObject.transform.localScale.y, playerGameObject.transform.localScale.z);
+                // playerGameObject.SetActive(false);
+                Debug.Log("Player is dead");
+                player.animator.SetInteger("playerState", 3);
 
-                player.deathState = false;
+                // deathPlayer = (GameObject)Instantiate(deathPlayerPrefab, playerGameObject.transform.position, playerGameObject.transform.rotation);
+                // deathPlayer.transform.localScale = new Vector3(playerGameObject.transform.localScale.x, playerGameObject.transform.localScale.y, playerGameObject.transform.localScale.z);
+
+                // player.deathState = false;
                 Invoke("ReloadLevel", 1);
+                // player.deathState = false;
             }
 
             // Restart if R key is pressed
@@ -47,7 +51,7 @@ namespace Platformer
 
             if (player.winState == true)
             {
-                if (Application.loadedLevel == 2)
+                if (Application.loadedLevel == 1)
                 {
                     Invoke("LoadNextLevel", 1f);
                 }
@@ -83,7 +87,9 @@ namespace Platformer
                 playerGameObject.transform.position = spawnPoint.transform.position;
 
             }
+            player.deathState = false;
             playerGameObject.SetActive(true);
+
         }
 
         private void FreezePlayer()
@@ -97,7 +103,7 @@ namespace Platformer
 
         private void LoadMainScreen()
         {
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(0);
         }
     }
 }
