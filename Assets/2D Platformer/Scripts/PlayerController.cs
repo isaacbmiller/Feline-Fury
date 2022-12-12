@@ -62,7 +62,7 @@ namespace Platformer
                         moveInput = Input.GetAxis("Horizontal");
                         Vector3 direction = transform.right * moveInput;
                         transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, movingSpeed * Time.deltaTime);
-                        Debug.Log("Moving");
+                        // Debug.Log("Moving");
                         // Only change animation if jump was at least 1 sec ago
                         if (Time.time - coyoteTimeCounter > 1 && isGrounded)
                         {
@@ -88,7 +88,7 @@ namespace Platformer
                     {
 
                         rigidbody.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
-                        Debug.Log("Jump");
+                        // Debug.Log("Jump");
                         animator.SetInteger("playerState", 2); // Turn on jump animation
                         // coyoteTimeCounter = 0;
                     }
@@ -179,10 +179,6 @@ namespace Platformer
                 deathState = true; // Say to GameManager that player is dead
                 animator.SetInteger("playerState", 3); // Turn on death animation
             }
-            else
-            {
-                deathState = false;
-            }
         }
         public void freezePlayer()
         {
@@ -196,6 +192,7 @@ namespace Platformer
             rigidbody.constraints = RigidbodyConstraints2D.None;
             rigidbody.constraints = RigidbodyConstraints2D.FreezeRotation;
             isFrozen = false;
+            state = State.Moving;
         }
 
         private void OnTriggerEnter2D(Collider2D other)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 namespace Platformer
 {
@@ -13,21 +14,63 @@ namespace Platformer
         public GameObject playerGameObject;
         private PlayerController player;
         public GameObject deathPlayerPrefab;
-        public Text coinText;
+        // public Text coinText;
+
+        public Text timerText;
 
         public GameObject spawnPoint;
 
         public Checkpoint lastCheckpoint;
 
         private GameObject deathPlayer;
+        
+        private float startTime;
+
+        private float currentLevelTime;
+
 
         void Start()
         {
             player = GameObject.Find("Player").GetComponent<PlayerController>();
+            // startTime = Time.time;
+        }
+
+        void OnEnable()
+        {
+            // If it is level 2, load the time from the previous level
+            if (Application.loadedLevel == 2)
+            {
+                Debug.Log("Loading time from previous level");
+                currentLevelTime = PlayerPrefs.GetFloat("time", 0);
+                startTime = Time.time;
+                // Debug.Log(startTime);
+            }
+            else
+            {
+                Debug.Log("Starting new timer");
+                startTime = Time.time;
+            }
+
+        }
+
+        void OnDisable()
+        {
+            // if (player.winState == true)
+            // {
+               
+            // }
+            // PlayerPrefs.SetFloat("time", startTime);
         }
 
         void Update()
         {
+            // Set timer text to mm:ss:ms, where any value less than 10 is padded with a 0
+            // Should be 00:00:00 at the start of the game and increase as time passes
+            if (!player.winState)
+            {
+                TimeSpan t = TimeSpan.FromSeconds(Time.time - currentLevelTime + startTime);
+                timerText.text = string.Format("{0:D2}:{1:D2}:{2:D2}", t.Minutes, t.Seconds, t.Milliseconds);
+            }
             if (player.deathState == true)
             {
                 // playerGameObject.SetActive(false);
@@ -51,8 +94,9 @@ namespace Platformer
 
             if (player.winState == true)
             {
-                if (Application.loadedLevel == 1)
+                if (Application.loadedLevel != 2)
                 {
+                    PlayerPrefs.SetFloat("time", Time.time - startTime + currentLevelTime);
                     Invoke("LoadNextLevel", 1f);
                 }
                 else
@@ -87,8 +131,16 @@ namespace Platformer
                 playerGameObject.transform.position = spawnPoint.transform.position;
 
             }
+            // Reset all clocks
+            MultiClockController[] clocks = FindObjectsOfType<MultiClockController>();
+            foreach (MultiClockController clock in clocks)
+            {
+                clock.ResetClock();
+            }
             player.deathState = false;
             playerGameObject.SetActive(true);
+            player.unfreezePlayer();
+            // player.playerState = PlayerController.State.Idle;
 
         }
 

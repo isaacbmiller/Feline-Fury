@@ -200,4 +200,9 @@ public class MultiClockController : MonoBehaviour
         // sumVector = sumVector;
         return sumVector;
     }
+    public void ResetClock()
+    {
+        setState(State.Idle);
+        
+    }
 }
